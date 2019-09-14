@@ -20,13 +20,18 @@ public class ClosestPair {
 	 *  ONLY THE BODY WILL BE CONSIDERED FOR GRADING
 	 */
 	public static Point[] getCPBruteForce (Point[] pts)  {
+		// Get the distance between the first two points
 		Point[] result = new Point[2];
 		result[0] = pts[0];
 		result[1] = pts[1];
 		double closest = pts[0].dist(pts[1]);
+
+		// Iterate through all points except the last
 		for (int i = 0; i < pts.length - 1; ++i) {
+			// Iterate through all points after the current
 			for (int j = i + 1; j < pts.length; ++j) {
 				double tmp = pts[i].dist(pts[j]);
+				// If this pair is closer than the current min, save it
 				if (tmp < closest) {
 					closest = tmp;
 					result[0] = pts[i];
@@ -59,12 +64,16 @@ public class ClosestPair {
 	 *  ONLY THE BODY WILL BE CONSIDERED FOR GRADING
 	 */
 	public static Point[] getCPDivideAndConquer(Point[] ptsX, Point[] ptsY) {
+		// If n <= 3 then do brute force
 		if (ptsX.length <= 3) {
 			return getCPBruteForce(ptsX);
 		}
 
+		// Find the median x and use that as the vertical line
 		int lIndex = ptsX.length / 2;
 		double l = (ptsX[lIndex - 1].x + ptsX[lIndex].x) / 2;
+
+		// Divide ptsX and ptsY into points left of line and points right of line
 		Point[] xl = new Point[lIndex];
 		Point[] xr = new Point[ptsX.length - lIndex];
 		Point[] yl = new Point[lIndex];
@@ -91,9 +100,12 @@ public class ClosestPair {
 			}
 		}
 
+		// Do the recursion
 		Point[] lresult = getCPDivideAndConquer(xl, yl);
 		Point[] rresult = getCPDivideAndConquer(xr, yr);
 		double min = Math.min(lresult[0].dist(lresult[1]), rresult[0].dist(rresult[1]));
+
+		// Check points in the vertical strip within min distance of the vertical line
 		Point[] ptsYP = new Point[ptsX.length];
 		int ptsYPSize = 0;
 		for (int i = 0; i < ptsY.length; ++i) {
@@ -105,6 +117,7 @@ public class ClosestPair {
 		double min2 = min;
 		Point[] result = new Point[2];
 		for (int i = 0; i < ptsYPSize - 1; ++i) {
+			// Check only the 7 points after the current point
 			for (int j = i + 1; j < Math.min(i + 7, ptsYPSize); ++j) {
 				if (ptsYP[i].dist(ptsYP[j]) < min2) {
 					min2 = ptsYP[i].dist(ptsYP[j]);
@@ -113,10 +126,13 @@ public class ClosestPair {
 				}
 			}
 		}
+
+		// If the min within this strip is less than the current min, use the new min
 		if (min2 < min) {
 			return result;
 		}
 
+		// Return the lesser of the left result and right result
 		if (lresult[0].dist(lresult[1]) < rresult[0].dist(rresult[1])) {
 			return lresult;
 		}
